@@ -1,3 +1,5 @@
+// From Tim
+
 package starcraftbot.proxybot.bot;
 
 import java.awt.Dimension;

@@ -12,3 +12,6 @@ Make sure to use the updated VM.
 Set whatever the IP of the proxybot is listening on (probably one of your host adapters) in proxybotnetworkinit.cmd, and run it on the host.
 
 
+
+From Tim
+
