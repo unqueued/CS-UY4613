@@ -6,6 +6,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
+import javax.swing.JFrame;
+
 import starcraftbot.proxybot.bot.ExampleStarCraftBot;
 import starcraftbot.proxybot.bot.MetaBot;
 import starcraftbot.proxybot.bot.StarCraftBot;
@@ -70,6 +72,7 @@ public class ProxyBot {
 		
 		StarCraftFrame frame = null;
     	SpeedPanel speedPanel = null;
+    	JFrame mainFrame = null;
 		//final StarCraftBot bot = new ExampleStarCraftBot();
     	final StarCraftBot bot = new MetaBot();
 		
@@ -133,6 +136,8 @@ public class ProxyBot {
 	    				// initialize the GUI
 	    				if (showGUI) {
 		    				frame = new StarCraftFrame(game);
+		    				mainFrame = new MainFrame();
+		    				mainFrame.show();
 		    			}
 	    			}
 	    				    			
