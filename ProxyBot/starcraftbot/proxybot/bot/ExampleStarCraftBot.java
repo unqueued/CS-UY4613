@@ -30,7 +30,7 @@ public class ExampleStarCraftBot implements StarCraftBot {
 				Thread.sleep(1000);
 			}
 			catch (Exception e) {}
-
+			
 			// start mining
 			for (UnitWME unit : game.getPlayerUnits()) {
 				if (unit.getOrder() == Order.PlayerGuard.ordinal()) {

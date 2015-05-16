@@ -7,8 +7,10 @@ import java.net.Socket;
 import java.net.SocketException;
 
 import javax.swing.JFrame;
+import javax.swing.JList;
 
 import starcraftbot.proxybot.bot.ExampleStarCraftBot;
+import starcraftbot.proxybot.bot.FarmBot;
 import starcraftbot.proxybot.bot.MetaBot;
 import starcraftbot.proxybot.bot.StarCraftBot;
 /**
@@ -74,8 +76,9 @@ public class ProxyBot {
     	SpeedPanel speedPanel = null;
     	JFrame mainFrame = null;
 		//final StarCraftBot bot = new ExampleStarCraftBot();
-    	final StarCraftBot bot = new MetaBot();
-		
+    	//final StarCraftBot bot = new MetaBot();
+		final FarmBot farmBot = new FarmBot();
+    	
 		try {
 			// 1. get the initial game information
 		    BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -127,17 +130,60 @@ public class ProxyBot {
 	    				firstFrame = false;
 	    				
 	    				// start the agent
+	    				/*
 	    				new Thread() {
 	    					public void run() {
 	    	    				bot.start(game);
 	    					}
 	    				}.start();
-
+	    				*/
+	    				// start the agent(s)
+	    				new Thread() {
+	    					public void run() {
+	    	    				farmBot.start(game);
+	    					}
+	    				}.start();
+	    				
 	    				// initialize the GUI
 	    				if (showGUI) {
 		    				frame = new StarCraftFrame(game);
 		    				mainFrame = new MainFrame();
 		    				mainFrame.show();
+		    				
+		    				JFrame BotControlFrame;
+		    				BotControl botControl = new BotControl();
+		    				BotControlFrame = new JFrame();
+		    				BotControlFrame.add(botControl);
+		    				BotControlFrame.pack();
+		    				BotControlFrame.setVisible(true);
+		    				
+		    				// Create bot thread objects
+		    				/*
+		    				Thread farmBotThread = new Thread() {
+		    					public void run() {
+		    	    				farmBot.start(game);
+		    					}
+		    				};
+		    				*/
+		    				
+		    				// Set up event listeners
+		    				JList botList = botControl.getBotList();
+		    				botList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
+		    		            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
+		    		            	JList jList = (JList) evt.getSource();
+		    		            	
+		    		            	if(contains(jList.getSelectedIndices(), 0)) {
+		    		            		//farmBot.start(game);
+		    		            		//farmBotThread.start();
+		    		            		System.out.println("FarmBot running");
+		    		            		farmBot.setPaused(false);
+		    		            	} else {
+		    		            		//farmBot.stop();
+		    		            		System.out.println("FarmBot not running");
+		    		            		farmBot.setPaused(true);
+		    		            	}
+		    		            }
+		    		        });
 		    			}
 	    			}
 	    				    			
@@ -162,8 +208,11 @@ public class ProxyBot {
 		finally {
 			
 			// stop the bot
-			if (bot != null) {
-				bot.stop();
+			//if (bot != null) {
+			//	bot.stop();
+			//}
+			if(farmBot != null) {
+				farmBot.stop();
 			}
 			
 			// close the frame
@@ -177,4 +226,14 @@ public class ProxyBot {
 			}
 		}
 	}
+	
+	// Kludge, I know
+    public boolean contains(final int[] array, final int key) {
+        for (final int i : array) {
+            if (i == key) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
