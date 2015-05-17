@@ -9,6 +9,7 @@ import java.net.SocketException;
 import javax.swing.JFrame;
 import javax.swing.JList;
 
+import starcraftbot.proxybot.bot.AttackBot;
 import starcraftbot.proxybot.bot.ExampleStarCraftBot;
 import starcraftbot.proxybot.bot.FarmBot;
 import starcraftbot.proxybot.bot.MetaBot;
@@ -78,6 +79,7 @@ public class ProxyBot {
 		//final StarCraftBot bot = new ExampleStarCraftBot();
     	//final StarCraftBot bot = new MetaBot();
 		final FarmBot farmBot = new FarmBot();
+		final AttackBot attackBot = new AttackBot();
     	
 		try {
 			// 1. get the initial game information
@@ -143,6 +145,11 @@ public class ProxyBot {
 	    	    				farmBot.start(game);
 	    					}
 	    				}.start();
+	    				new Thread() {
+	    					public void run() {
+	    	    				attackBot.start(game);
+	    					}
+	    				}.start();
 	    				
 	    				// initialize the GUI
 	    				if (showGUI) {
@@ -182,6 +189,15 @@ public class ProxyBot {
 		    		            		System.out.println("FarmBot not running");
 		    		            		farmBot.setPaused(true);
 		    		            	}
+		    		            	
+		    		            	if(contains(jList.getSelectedIndices(), 1)) {
+		    		            		System.out.println("AttackBot running");
+		    		            		attackBot.setPaused(false);
+		    		            	} else {
+		    		            		System.out.println("AttackBot not running");
+		    		            		attackBot.setPaused(true);
+		    		            	}
+		    		            	
 		    		            }
 		    		        });
 		    			}

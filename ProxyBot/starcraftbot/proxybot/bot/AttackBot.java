@@ -9,8 +9,19 @@ import starcraftbot.proxybot.wmes.unit.UnitWME;
 public class AttackBot implements StarCraftBot {
 	boolean running = true;
 	double attackRange = 30;
-	int workerType = UnitType.Terran_SCV.ordinal();
-
+	//int workerType = UnitType.Terran_SCV.ordinal();
+	int workerType = 30000;
+	
+	boolean paused = true;
+	
+	public void setPaused(boolean _paused) {
+		paused = _paused;
+	}
+	
+	public boolean getPaused() {
+		return paused;
+	}
+	
 	public AttackBot() {
 		// TODO Auto-generated constructor stub
 	}
@@ -23,11 +34,14 @@ public class AttackBot implements StarCraftBot {
 				Thread.sleep(1000);
 			}
 			catch (Exception e) {}
-
-				
+			
+			// Check to see if we're paused or not
+			if(paused)
+				continue;
+			
 			for (UnitWME unit : game.getPlayerUnits()) {
 				if (unit.getTypeID() == workerType ){
-					continue;
+				//	continue;
 				}
 				if (unit.getOrder() == Order.PlayerGuard.ordinal()) {
 
@@ -46,7 +60,7 @@ public class AttackBot implements StarCraftBot {
 							closest = dist;
 						}
 					}					
-					if(closest!=Double.MAX_VALUE)System.out.println("Enemy distance: "+ closest);
+					//if(closest!=Double.MAX_VALUE) System.out.println("Enemy distance: "+ closest);
 					if (patchID != -1 && closest < attackRange) {
 						game.getCommandQueue().rightClick(unit.getID(), patchID);
 					}
