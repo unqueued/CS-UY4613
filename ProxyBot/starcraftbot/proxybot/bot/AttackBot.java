@@ -8,9 +8,9 @@ import starcraftbot.proxybot.wmes.unit.UnitWME;
 
 public class AttackBot implements StarCraftBot {
 	boolean running = true;
+	//double attackRange = 30000;
 	double attackRange = 30;
-	//int workerType = UnitType.Terran_SCV.ordinal();
-	int workerType = 30000;
+	int workerType = UnitType.Terran_SCV.ordinal();
 	
 	boolean paused = true;
 	
@@ -64,8 +64,8 @@ public class AttackBot implements StarCraftBot {
 					if (patchID != -1 && closest < attackRange) {
 						game.getCommandQueue().rightClick(unit.getID(), patchID);
 					}
-				}				
-			}	
+				}
+			}
         }
 
 	}
