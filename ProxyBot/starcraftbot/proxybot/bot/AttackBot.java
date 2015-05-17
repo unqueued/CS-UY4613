@@ -40,29 +40,26 @@ public class AttackBot implements StarCraftBot {
 				continue;
 			
 			for (UnitWME unit : game.getPlayerUnits()) {
-				if (unit.getTypeID() == workerType ){
-				//	continue;
+				if (unit.getIsWorker() ){
+					//continue;
 				}
 				if (unit.getOrder() == Order.PlayerGuard.ordinal()) {
 
 					int patchID = -1;
 					double closest = Double.MAX_VALUE;
+					UnitWME target;
 					
                     //if( game.getEnemyUnits().isEmpty()) System.out.println("No enemy found!");
 					for (UnitWME enemy : game.getEnemyUnits()) {
 						double dist = unit.distance(enemy);
-//						double dx = unit.getX() - enemy.getX();
-//						double dy = unit.getY() - enemy.getY();
-//						double dist = Math.sqrt(dx*dx + dy*dy); 
-			
 						if (dist < closest) {
 							patchID = enemy.getID();
 							closest = dist;
+							target = enemy;
 						}
 					}					
-					//if(closest!=Double.MAX_VALUE) System.out.println("Enemy distance: "+ closest);
-					if (patchID != -1 && closest < attackRange) {
-						game.getCommandQueue().rightClick(unit.getID(), patchID);
+					if ( closest < attackRange) {
+						game.getCommandQueue().attackUnit(unit.getID(), patchID);
 					}
 				}
 			}
