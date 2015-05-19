@@ -2,19 +2,16 @@
 
 package starcraftbot.proxybot.bot;
 
-import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.util.ArrayList;
 
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JList;
 
 import starcraftbot.proxybot.BotControl;
 import starcraftbot.proxybot.Game;
-import starcraftbot.proxybot.Constants.Order;
-import starcraftbot.proxybot.Constants.Race;
-import starcraftbot.proxybot.wmes.UnitTypeWME;
-import starcraftbot.proxybot.wmes.UnitTypeWME.UnitType;
-import starcraftbot.proxybot.wmes.unit.UnitWME;
 /**
  * Empty implementation of the StarCraft bot interface.
  * 
@@ -26,59 +23,78 @@ import starcraftbot.proxybot.wmes.unit.UnitWME;
 public class MetaBot implements StarCraftBot {
 	
 	private JFrame frame;
-	
 	boolean running = true;
-	FarmBot farmBot = new FarmBot();
-	NullStarCraftBot nullStarCraftBot = new NullStarCraftBot();
+
+	ArrayList<StarCraftBot> botList = new ArrayList<StarCraftBot>();
+	ArrayList<JCheckBox> checkboxList = new ArrayList<JCheckBox>();
 	
-	public void start(Game game) {
-		//System.out.println("I are Metabot");
+	public MetaBot(){
+        StarCraftBot farmBot = new FarmBot();
+        StarCraftBot attackBot = new AttackBot();
+        StarCraftBot buildBot = new BuildBot();
+		botList.add(farmBot);
+		botList.add(attackBot);
+		botList.add(buildBot);
 		
-		/*
-		frame = new JFrame("Game Speed");
-		//frame.add(this);
-		frame.add(new JLabel("I are metabot"));
-		frame.pack();
-		frame.setPreferredSize(new Dimension(512, 512));
-		frame.setLocation(320, 0);
-		frame.setVisible(true);
-		*/
+		
+	}
+	
+	void initUI(Game game){
+		frame = new JFrame();
+		frame.setLayout(new FlowLayout());
+
+		for(StarCraftBot bot : botList){
+			System.out.println(bot.getName());
+			JCheckBox checkbox = new JCheckBox(bot.getName());
+			checkbox.addItemListener(new ItemListener(){
+
+				@Override
+				public void itemStateChanged(ItemEvent e) {
+					JCheckBox c = (JCheckBox) e.getItem();
+					int index = checkboxList.indexOf(c);
+					StarCraftBot the_bot = botList.get(index);
+					the_bot.setPaused( !c.isSelected() );
+				}
+			});
+			
+			frame.add(checkbox);
+			checkboxList.add(checkbox);
+			
+			new Thread() {
+				public void run() {
+    				bot.start(game);
+				}
+			}.start();
+			
+		}
 		
 		BotControl botControl = new BotControl();
-		
-		frame = new JFrame();
-		frame.add(botControl);
 		frame.pack();
 		frame.setVisible(true);
+	}
+	
+	
+	public void start(Game game) {
+		initUI(game);
 		
-		// Create bots
-		
-		// Set up event listeners
-		JList botList = botControl.getBotList();
-		botList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-            public void valueChanged(javax.swing.event.ListSelectionEvent evt) {
-            	JList jList = (JList) evt.getSource();
-            	
-            	if(contains(jList.getSelectedIndices(), 0)) {
-            		farmBot.start(game);
-            	} else {
-            		farmBot.stop();
-            	}
-            }
-        });
 	}
 
 	public void stop() {
-		running = false;
+		for(StarCraftBot bot: botList){
+			bot.stop();
+		}
 	}
 
-	// Kludge, I know
-    public boolean contains(final int[] array, final int key) {
-        for (final int i : array) {
-            if (i == key) {
-                return true;
-            }
-        }
-        return false;
+
+    
+    public static void main(String[] args){
+    	MetaBot bot = new MetaBot();
+    	bot.start(null);
     }
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return "MetaBot";
+	}
 }

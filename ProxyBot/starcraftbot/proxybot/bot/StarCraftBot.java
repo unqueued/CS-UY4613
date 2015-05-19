@@ -1,5 +1,7 @@
 package starcraftbot.proxybot.bot;
 
+import javax.swing.Icon;
+
 import starcraftbot.proxybot.Game;
 /**
  * Interface for a Java-based StarCraft agent. The game object projects game state queues.
@@ -9,6 +11,8 @@ import starcraftbot.proxybot.Game;
  *       method is invoked.
  */
 public interface StarCraftBot {
+
+
 
 	/**
 	 * Tells the bot to start executing. The caller assumes that the bot will hold onto
@@ -22,4 +26,12 @@ public interface StarCraftBot {
 	 * The start method must terminate shortly after this method is invoked.
 	 */
 	public void stop();
+
+	public default String getName(){
+		return "StarCraftBot";
+	};
+	
+	public default void setPaused(boolean b){};
+	
+		
 }
