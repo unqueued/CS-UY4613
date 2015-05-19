@@ -15,6 +15,7 @@ public class AttackBot implements StarCraftBot {
 	boolean paused = true;
 	
 	public void setPaused(boolean _paused) {
+		System.out.println(getName()+ " paused: "+ _paused);
 		paused = _paused;
 	}
 	
@@ -43,7 +44,8 @@ public class AttackBot implements StarCraftBot {
 				if (unit.getIsWorker() ){
 					//continue;
 				}
-				if (unit.getOrder() == Order.PlayerGuard.ordinal()) {
+				//if (unit.getOrder() != Order.Repair1.ordinal()) {
+				if (true ) {
 
 					int patchID = -1;
 					double closest = Double.MAX_VALUE;
@@ -59,12 +61,18 @@ public class AttackBot implements StarCraftBot {
 						}
 					}					
 					if ( closest < attackRange) {
-						game.getCommandQueue().attackUnit(unit.getID(), patchID);
+						game.getCommandQueue().rightClick(unit.getID(), patchID);
 					}
 				}
 			}
         }
 
+	}
+
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return "AttackBot";
 	}
 
 	@Override

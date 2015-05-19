@@ -3,8 +3,10 @@ package starcraftbot.proxybot.bot;
 import java.util.HashMap;
 
 import starcraftbot.proxybot.Constants.Order;
+import starcraftbot.proxybot.Constants.Race;
 import starcraftbot.proxybot.Game;
 import starcraftbot.proxybot.wmes.UnitTypeWME;
+import starcraftbot.proxybot.wmes.UnitTypeWME.UnitType;
 import starcraftbot.proxybot.wmes.unit.UnitWME;
 
 
@@ -18,10 +20,18 @@ import starcraftbot.proxybot.wmes.unit.UnitWME;
 public class BuildBot implements StarCraftBot {
 	
 	boolean running = true;
-	int barrackMax = 1;
-	int marineMax = 5;
-
+	boolean paused = true;
+	int barrackMax = 2;
+	float marineP = 0.7f;
+	float workerP = 0.3f;
 	HashMap<Integer, Integer> unitNum = new HashMap<Integer, Integer>();
+	
+	
+	public void setPaused(boolean _paused) {
+		System.out.println(getName()+ "paused: "+ _paused);
+		paused = _paused;
+	}
+	
 	public void start(Game game) {
 		
 		while (running) {
@@ -29,13 +39,15 @@ public class BuildBot implements StarCraftBot {
 				Thread.sleep(1000);
 			}
 			catch (Exception e) {}
+			
+			if(paused) continue;
 
 			//count all units 
             updateUnitNumber(game);
 			
 			//if you have enough minerals you're running out of supply, build more supply! 
 			if (game.getPlayer().getMinerals() >= 100 && 
-					game.getPlayer().getSupplyUsed() >= (game.getPlayer().getSupplyTotal() - 2) ) {
+					game.getPlayer().getSupplyUsed() >= (game.getPlayer().getSupplyTotal() - 4) ) {
 				
 				int supplyType = UnitTypeWME.getSupplyType(game.getPlayerRace());
 				
@@ -56,13 +68,13 @@ public class BuildBot implements StarCraftBot {
 			}
 			
 			//if you have enough minerals and you have 0 barracks, build a barrack!
-			else if (game.getPlayer().getMinerals() >= 150 ) {
+			if (game.getPlayer().getMinerals() >= 200 && game.getPlayer().getSupplyTotal()/2 >=12 ) {
 
 				int barrackType = UnitTypeWME.Terran_Barracks;
 				/*&& barrack doesn't already exist*/
 				if( getUnitNumber(barrackType) < barrackMax ) {
 				//find a worker to build the barrack
-				System.out.println("----Build barrack");
+				System.out.println("----Build barrack, supply: "+game.getPlayer().getSupplyTotal()/2);
 					for (UnitWME unit : game.getPlayerUnits()) {
 						if (unit.getIsWorker() && 
 							unit.getOrder() != Order.ConstructingBuilding.ordinal() ) {
@@ -78,24 +90,40 @@ public class BuildBot implements StarCraftBot {
 					
 				}
 				
-				if( getUnitNumber( UnitTypeWME.Terran_Marine ) < barrackMax ) {
-                System.out.println("----Build marine");
-					for (UnitWME unit : game.getPlayerUnits()) {
-						if (unit.getTypeID() == UnitTypeWME.Terran_Barracks) {
-							game.getCommandQueue().train(unit.getID(), UnitTypeWME.Terran_Marine);
-							break;
-						}
+			}
+
+			// build more workers
+			if (game.getPlayer().getMinerals() >= 50 &&
+					getUnitNumber( UnitTypeWME.Terran_SCV ) < game.getPlayer().getSupplyTotal()/2*workerP ||
+					getUnitNumber( UnitTypeWME.Terran_SCV ) < 10 ) {
+				int workerType = UnitTypeWME.getWorkerType(game.getPlayerRace());
+				int centerType = UnitTypeWME.getCenterType(game.getPlayerRace());
+
+				for (UnitWME unit : game.getPlayerUnits()) {
+					if (unit.getTypeID() == centerType) {
+						game.getCommandQueue().train(unit.getID(), workerType);
 					}
 				}
 			}
+
+
+			if( getUnitNumber( UnitTypeWME.Terran_Marine ) < game.getPlayer().getSupplyTotal()/2*marineP ) {
+				System.out.println("----Build marine");
+				float need = game.getPlayer().getSupplyTotal()/2*marineP - getUnitNumber( UnitTypeWME.Terran_Marine );
+				for (UnitWME unit : game.getPlayerUnits()) {
+					if (unit.getTypeID() == UnitTypeWME.Terran_Barracks) {
+						game.getCommandQueue().train(unit.getID(), UnitTypeWME.Terran_Marine);
+						if (need<2) break;
+					}
+				}
+			}
+			
 			
 		}
 	}
 	
 	void updateUnitNumber(Game game){
-//		for(int typeId : UnitTypeWME.getUnitTypeMap().keySet() ){
-//			unitNum.put(typeId, 0);
-//		}
+		unitNum.clear();
 		for(UnitWME unit : game.getPlayerUnits()){
 			int typeId = unit.getTypeID();
 			int num = unitNum.containsKey(typeId)? unitNum.get(typeId) : 0;
@@ -110,6 +138,11 @@ public class BuildBot implements StarCraftBot {
 		running = false;
 	}
 
+	@Override
+	public String getName() {
+		// TODO Auto-generated method stub
+		return "BuildBot";
+	}
 	
 
 }
